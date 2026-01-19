@@ -206,7 +206,7 @@ Este projeto é privado e de uso exclusivo.
 ## 🤝 Desenvolvido por
 
 <p align="center">
-  <strong>Aba Incêndio</strong><br>
+  <strong>AbaIncêndio</strong><br>
   <a href="https://abaincendio.com.br">abaincendio.com.br</a>
 </p>
 
