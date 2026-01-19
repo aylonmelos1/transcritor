@@ -32,9 +32,7 @@ export const transcribeAudio = async (req: Request, res: Response): Promise<void
             const transcription = await openai.audio.transcriptions.create({
                 file: fs.createReadStream(filePath),
                 model: "whisper-1",
-                prompt: systemPrompt ? `${systemPrompt} ${prompt || ''}`.trim() : prompt,
-                response_format: "json",
-                language: "pt-br",
+                prompt: systemPrompt ? `${systemPrompt} ${prompt || ''}`.trim() : prompt
             });
 
             // Limpeza do arquivo temporário

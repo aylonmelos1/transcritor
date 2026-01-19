@@ -1,0 +1,50 @@
+name: CI
+
+on:
+    push:
+        branches: [main]
+    pull_request:
+        branches: [main]
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: actions/checkout@v4
+            - name: Use Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "20.x"
+            - name: Install dependencies
+              run: npm ci
+            - name: Build
+              run: npm run build
+
+    deploy:
+        needs: build
+        if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+        runs-on: ubuntu-latest
+        steps:
+            - name: Deploy to VPS
+              uses: appleboy/ssh-action@v1.0.3
+              with:
+                  host: ${{ secrets.VPS_HOST }}
+                  username: ${{ secrets.VPS_USER }}
+                  key: ${{ secrets.VPS_SSH_KEY }}
+                  script: |
+                      # Load NVM and set Node.js environment
+                      export NVM_DIR="$HOME/.nvm"
+                      [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+
+                      cd ~/transcritor
+                      git pull
+                      # Install fresh dependencies
+                      npm ci
+                      # Build the project (API and Worker)
+                      npm run build
+                      # Start or Reload processes defined in ecosystem.config.js (API + Worker)
+                      pm2 reload ecosystem.config.js --env production
+                      pm2 save
+
+                      echo "Deploy completed at $(date)"
