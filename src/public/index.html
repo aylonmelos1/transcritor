@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transcritor de Áudio - IA</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="background-mesh"></div>
+
+    <!-- Login Overlay -->
+    <div id="login-overlay" class="login-overlay">
+        <div class="login-card">
+            <h2>Transcritor Studio</h2>
+            <p>Faça login para continuar.</p>
+            <input type="text" id="username-input" placeholder="Usuário">
+            <input type="password" id="password-input" placeholder="Senha">
+            <button id="login-btn" class="primary-btn">Entrar</button>
+            <p id="login-error" class="error-msg"></p>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="login-overlay" style="display: none;">
+        <div class="login-card" style="max-width: 500px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h2>Configurações</h2>
+                <button id="close-settings" class="secondary-btn">X</button>
+            </div>
+
+            <!-- Aba Trocar Senha -->
+            <div class="settings-section">
+                <h3>Trocar Senha</h3>
+                <input type="password" id="old-pass" placeholder="Senha Atual">
+                <input type="password" id="new-pass" placeholder="Nova Senha">
+                <button id="change-pass-btn" class="secondary-btn"
+                    style="width: 100%; justify-content: center; margin-top: 0.5rem;">Atualizar Senha</button>
+                <p id="pass-msg" class="error-msg" style="color: #4ade80;"></p>
+            </div>
+
+            <hr style="border-color: var(--border-color); margin: 1.5rem 0; opacity: 0.3;">
+
+            <!-- Aba Admin (Oculta se não for Admin) -->
+            <div id="admin-section" class="settings-section" style="display: none;">
+                <h3>Criar Usuário (Admin)</h3>
+                <input type="text" id="new-user-name" placeholder="Nome de usuário">
+                <input type="password" id="new-user-pass" placeholder="Senha temporária">
+                <select id="new-user-role"
+                    style="width:100%; padding:1rem; border-radius:1rem; background: rgba(0,0,0,0.3); color:white; border:1px solid var(--border-color); margin: 1.5rem 0;">
+                    <option value="USER">USER</option>
+                    <option value="MASTER">MASTER</option>
+                    <option value="ADMIN">ADMIN</option>
+                </select>
+                <button id="create-user-btn" class="primary-btn">Criar Usuário</button>
+                <p id="admin-msg" class="error-msg" style="color: #4ade80;"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App (Hidden by default) -->
+    <div class="app-wrapper" id="app-wrapper" style="display: none;">
+
+        <!-- Sidebar Histórico -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h3>Histórico</h3>
+                <button id="refresh-history" title="Atualizar">
+                    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+                        <path d="M23 4v6h-6"></path>
+                        <path d="M1 20v-6h6"></path>
+                        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                    </svg>
+                </button>
+            </div>
+            <ul id="history-list" class="history-list">
+                <!-- Itens injetados via JS -->
+            </ul>
+
+            <div class="sidebar-footer">
+                <button id="settings-btn" class="secondary-btn"
+                    style="width: 100%; justify-content: center; margin-bottom: 0.5rem;">
+                    Configurações
+                </button>
+                <button id="logout-btn" class="primary-btn"
+                    style="width: 100%; background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.5); color: #fca5a5;">
+                    Sair
+                </button>
+            </div>
+        </aside>
+
+        <div class="container main-content">
+            <header>
+                <h1>Transcritor <span class="gradient-text">Studio</span></h1>
+                <p>Transforme seu áudio em texto com o poder da Inteligência Artificial.</p>
+            </header>
+
+            <main>
+                <div class="upload-area" id="drop-zone">
+                    <input type="file" id="file-input" accept="audio/*" hidden>
+                    <div class="icon-upload">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="17 8 12 3 7 8"></polyline>
+                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
+                    </div>
+                    <h3>Arraste e solte seu áudio aqui</h3>
+                    <p>ou clique para selecionar um arquivo</p>
+                    <span class="file-info" id="file-info">Nenhum arquivo selecionado</span>
+                </div>
+
+                <div class="form-grid">
+                    <div class="input-group">
+                        <label for="title-input">Título da Transcrição (Opcional)</label>
+                        <input type="text" id="title-input" placeholder="Ex: Reunião de Pauta - 19/01">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="prompt-input">Prompt (Contexto, palavras difíceis)</label>
+                        <textarea id="prompt-input" rows="2"
+                            placeholder="Ex: Assunto jurídico, termos técnicos..."></textarea>
+                    </div>
+                </div>
+
+                <button id="transcribe-btn" class="primary-btn" disabled>
+                    <span class="btn-text">Iniciar Transcrição</span>
+                    <span class="loader" id="loader"></span>
+                </button>
+
+                <div class="result-container hidden" id="result-container">
+                    <div class="result-header">
+                        <h2 id="result-title">Transcrição</h2>
+                        <button id="download-btn" class="secondary-btn">
+                            <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2"
+                                fill="none" stroke-linecap="round" stroke-linejoin="round" class="css-i6dzq1">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="7 10 12 15 17 10"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
+                            </svg>
+                            Baixar MD
+                        </button>
+                    </div>
+                    <div class="result-content">
+                        <pre id="transcription-text"></pre>
+                    </div>
+                </div>
+            </main>
+
+            <footer>
+                <p>Powered by OpenAI Whisper + SQLite</p>
+            </footer>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+
+</html>
