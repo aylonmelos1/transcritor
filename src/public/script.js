@@ -223,7 +223,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     changePassBtn.addEventListener('click', async () => {
         passMsg.textContent = 'Processando...';
-        passMsg.style.color = '#e2e8f0';
+        passMsg.className = 'settings-msg';
         try {
             const response = await authFetch('/api/change-password', {
                 method: 'POST',
@@ -235,23 +235,23 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             const data = await response.json();
             if (response.ok) {
-                passMsg.style.color = '#4ade80';
-                passMsg.textContent = 'Sucesso!';
+                passMsg.className = 'settings-msg success';
+                passMsg.textContent = '✓ Senha atualizada!';
                 oldPass.value = '';
                 newPass.value = '';
             } else {
-                passMsg.style.color = '#ef4444';
-                passMsg.textContent = data.error || 'Erro.';
+                passMsg.className = 'settings-msg error';
+                passMsg.textContent = data.error || 'Erro ao atualizar.';
             }
         } catch (e) {
-            passMsg.style.color = '#ef4444';
+            passMsg.className = 'settings-msg error';
             passMsg.textContent = 'Erro de rede.';
         }
     });
 
     createUserBtn.addEventListener('click', async () => {
         adminMsg.textContent = 'Processando...';
-        adminMsg.style.color = '#e2e8f0';
+        adminMsg.className = 'settings-msg';
         try {
             const response = await authFetch('/api/users', {
                 method: 'POST',
@@ -264,16 +264,16 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             const data = await response.json();
             if (response.ok) {
-                adminMsg.style.color = '#4ade80';
-                adminMsg.textContent = 'Usuário criado!';
+                adminMsg.className = 'settings-msg success';
+                adminMsg.textContent = '✓ Usuário criado!';
                 newUser.value = '';
                 newPassUser.value = '';
             } else {
-                adminMsg.style.color = '#ef4444';
-                adminMsg.textContent = data.error || 'Erro.';
+                adminMsg.className = 'settings-msg error';
+                adminMsg.textContent = data.error || 'Erro ao criar.';
             }
         } catch (e) {
-            adminMsg.style.color = '#ef4444';
+            adminMsg.className = 'settings-msg error';
             adminMsg.textContent = 'Erro de rede.';
         }
     });

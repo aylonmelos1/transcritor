@@ -27,38 +27,61 @@
     </div>
 
     <!-- Settings Modal -->
-    <div id="settings-modal" class="login-overlay" style="display: none;">
-        <div class="login-card" style="max-width: 500px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                <h2>Configurações</h2>
-                <button id="close-settings" class="secondary-btn">X</button>
+    <div id="settings-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2>⚙️ Configurações</h2>
+                <button id="close-settings" class="modal-close">&times;</button>
             </div>
 
-            <!-- Aba Trocar Senha -->
-            <div class="settings-section">
-                <h3>Trocar Senha</h3>
-                <input type="password" id="old-pass" placeholder="Senha Atual">
-                <input type="password" id="new-pass" placeholder="Nova Senha">
-                <button id="change-pass-btn" class="secondary-btn"
-                    style="width: 100%; justify-content: center; margin-top: 0.5rem;">Atualizar Senha</button>
-                <p id="pass-msg" class="error-msg" style="color: #4ade80;"></p>
-            </div>
+            <div class="modal-body">
+                <!-- Seção Trocar Senha -->
+                <div class="settings-card">
+                    <div class="settings-card-header">
+                        <span class="settings-icon">🔐</span>
+                        <h3>Alterar Senha</h3>
+                    </div>
+                    <div class="settings-card-body">
+                        <div class="input-row">
+                            <label for="old-pass">Senha Atual</label>
+                            <input type="password" id="old-pass" placeholder="Digite sua senha atual">
+                        </div>
+                        <div class="input-row">
+                            <label for="new-pass">Nova Senha</label>
+                            <input type="password" id="new-pass" placeholder="Digite a nova senha">
+                        </div>
+                        <button id="change-pass-btn" class="settings-btn">Atualizar Senha</button>
+                        <p id="pass-msg" class="settings-msg"></p>
+                    </div>
+                </div>
 
-            <hr style="border-color: var(--border-color); margin: 1.5rem 0; opacity: 0.3;">
-
-            <!-- Aba Admin (Oculta se não for Admin) -->
-            <div id="admin-section" class="settings-section" style="display: none;">
-                <h3>Criar Usuário (Admin)</h3>
-                <input type="text" id="new-user-name" placeholder="Nome de usuário">
-                <input type="password" id="new-user-pass" placeholder="Senha temporária">
-                <select id="new-user-role"
-                    style="width:100%; padding:1rem; border-radius:1rem; background: rgba(0,0,0,0.3); color:white; border:1px solid var(--border-color); margin: 1.5rem 0;">
-                    <option value="USER">USER</option>
-                    <option value="MASTER">MASTER</option>
-                    <option value="ADMIN">ADMIN</option>
-                </select>
-                <button id="create-user-btn" class="primary-btn">Criar Usuário</button>
-                <p id="admin-msg" class="error-msg" style="color: #4ade80;"></p>
+                <!-- Seção Admin (Oculta se não for Admin) -->
+                <div id="admin-section" class="settings-card" style="display: none;">
+                    <div class="settings-card-header">
+                        <span class="settings-icon">👤</span>
+                        <h3>Criar Novo Usuário</h3>
+                    </div>
+                    <div class="settings-card-body">
+                        <div class="input-row">
+                            <label for="new-user-name">Nome de Usuário</label>
+                            <input type="text" id="new-user-name" placeholder="Ex: joao.silva">
+                        </div>
+                        <div class="input-row">
+                            <label for="new-user-pass">Senha Temporária</label>
+                            <input type="password" id="new-user-pass" placeholder="Senha inicial do usuário">
+                        </div>
+                        <div class="input-row">
+                            <label for="new-user-role">Perfil de Acesso</label>
+                            <select id="new-user-role">
+                                <option value="USER">👤 Usuário (apenas próprias transcrições)</option>
+                                <option value="MASTER">👁️ Master (visualiza todas)</option>
+                                <option value="ADMIN">🛡️ Admin (gestão completa)</option>
+                            </select>
+                        </div>
+                        <button id="create-user-btn" class="settings-btn primary">Criar Usuário</button>
+                        <p id="admin-msg" class="settings-msg"></p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
