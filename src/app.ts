@@ -3,6 +3,7 @@ import cors from 'cors';
 import path from 'path';
 import dotenv from 'dotenv';
 import apiRoutes from './routes/api';
+import { initDb } from './database/db';
 
 dotenv.config();
 
@@ -23,7 +24,6 @@ app.use(express.static(publicPath));
 app.use('/api', apiRoutes);
 
 // Fallback para SPA (redireciona para index.html)
-// Express 5+ usa sintaxe diferente para wildcard
 app.use((req, res, next) => {
     // Se não for uma rota de API e não for um arquivo existente, serve o index.html
     if (!req.path.startsWith('/api')) {
@@ -33,7 +33,13 @@ app.use((req, res, next) => {
     }
 });
 
-app.listen(port, () => {
-    console.log(`Servidor rodando na porta ${port}`);
-    console.log(`Acesse http://localhost:${port}`);
+// Inicializar DB e então iniciar servidor
+initDb().then(() => {
+    app.listen(port, () => {
+        console.log(`Servidor rodando na porta ${port}`);
+        console.log(`Acesse http://localhost:${port}`);
+    });
+}).catch(err => {
+    console.error('Erro ao inicializar banco de dados:', err);
+    process.exit(1);
 });
