@@ -136,8 +136,10 @@
 
                 <div class="result-container hidden" id="result-container">
                     <div class="result-header">
-                        <h2 id="result-title">Transcrição</h2>
-                        <div style="display:flex; gap:0.5rem;">
+                        <input type="text" id="result-title-input" class="title-editable"
+                            placeholder="Título da transcrição">
+                        <button id="save-title-btn" class="secondary-btn" style="display:none;">Salvar</button>
+                        <div style="display:flex; gap:0.5rem; margin-left: auto;">
                             <button id="copy-json-btn" class="secondary-btn">Copiar JSON</button>
                             <button id="download-btn" class="secondary-btn">
                                 <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2"

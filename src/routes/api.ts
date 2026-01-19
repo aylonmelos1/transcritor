@@ -4,7 +4,7 @@ import path from 'path';
 import fs from 'fs';
 import { transcribeAudio } from '../controllers/transcriptionController';
 import { login } from '../controllers/authController';
-import { getHistory, getTranscription } from '../controllers/historyController';
+import { getHistory, getTranscription, updateTranscription } from '../controllers/historyController';
 import { authenticateToken } from '../middlewares/authMiddleware';
 
 const router = Router();
@@ -42,6 +42,7 @@ router.use(authenticateToken); // Aplica autenticação em tudo abaixo
 router.post('/transcribe', upload.single('audio'), transcribeAudio);
 router.get('/history', getHistory);
 router.get('/history/:id', getTranscription);
+router.patch('/history/:id', updateTranscription);
 
 // Gestão de Usuários
 import { changePassword, createUser } from '../controllers/authController';

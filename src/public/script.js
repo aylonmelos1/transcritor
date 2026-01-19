@@ -36,14 +36,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const transcribeBtn = document.getElementById('transcribe-btn');
     const resultContainer = document.getElementById('result-container');
     const segmentsContainer = document.getElementById('segments-container');
-    const resultTitle = document.getElementById('result-title');
+    const resultTitleInput = document.getElementById('result-title-input');
+    const saveTitleBtn = document.getElementById('save-title-btn');
     const downloadBtn = document.getElementById('download-btn');
     const copyJsonBtn = document.getElementById('copy-json-btn');
     const historyList = document.getElementById('history-list');
     const refreshHistoryBtn = document.getElementById('refresh-history');
 
     let selectedFile = null;
+    let currentTranscriptionId = null;
     let currentTranscriptionTitle = "";
+    let originalTitle = "";
     let currentSegments = [];
     let authToken = localStorage.getItem('authToken');
     let userRole = localStorage.getItem('userRole');
@@ -76,6 +79,41 @@ document.addEventListener('DOMContentLoaded', () => {
             segmentsContainer.appendChild(div);
         });
     }
+
+    // --- Detectar mudança no título ---
+    resultTitleInput.addEventListener('input', () => {
+        if (resultTitleInput.value !== originalTitle) {
+            saveTitleBtn.style.display = 'inline-flex';
+        } else {
+            saveTitleBtn.style.display = 'none';
+        }
+        currentTranscriptionTitle = resultTitleInput.value;
+    });
+
+    // --- Salvar título ---
+    saveTitleBtn.addEventListener('click', async () => {
+        if (!currentTranscriptionId) return;
+
+        saveTitleBtn.textContent = 'Salvando...';
+        try {
+            const response = await authFetch(`/api/history/${currentTranscriptionId}`, {
+                method: 'PATCH',
+                body: JSON.stringify({ title: resultTitleInput.value }),
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            if (response.ok) {
+                originalTitle = resultTitleInput.value;
+                saveTitleBtn.textContent = 'Salvo!';
+                setTimeout(() => { saveTitleBtn.style.display = 'none'; saveTitleBtn.textContent = 'Salvar'; }, 1500);
+                loadHistory(); // Atualizar lista
+            } else {
+                saveTitleBtn.textContent = 'Erro';
+            }
+        } catch (e) {
+            saveTitleBtn.textContent = 'Erro';
+        }
+    });
 
     // --- Autenticação ---
     checkAuthStatus();
@@ -299,8 +337,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const data = await response.json();
 
-            resultTitle.textContent = data.title || data.filename;
+            currentTranscriptionId = id;
             currentTranscriptionTitle = data.title || data.filename;
+            originalTitle = currentTranscriptionTitle;
+
+            resultTitleInput.value = currentTranscriptionTitle;
+            saveTitleBtn.style.display = 'none';
+
             renderSegments(data.segments);
 
             resultContainer.classList.remove('hidden');
@@ -392,13 +435,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error(data.error || 'Erro na transcrição');
             }
 
-            resultTitle.textContent = data.title;
+            // Após nova transcrição, recarregar histórico para pegar o ID
+            await loadHistory();
+
             currentTranscriptionTitle = data.title;
+            originalTitle = data.title;
+            resultTitleInput.value = data.title;
+            saveTitleBtn.style.display = 'none';
             renderSegments(data.segments);
 
             resultContainer.classList.remove('hidden');
             resultContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            loadHistory();
 
         } catch (error) {
             console.error(error);

@@ -405,6 +405,29 @@ main {
     font-weight: 600;
 }
 
+.title-editable {
+    font-size: 1.3rem;
+    font-weight: 600;
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--text-color);
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    transition: all 0.2s;
+    flex: 1;
+    min-width: 200px;
+}
+
+.title-editable:hover {
+    border-color: var(--border-color);
+}
+
+.title-editable:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    background: rgba(255, 255, 255, 0.05);
+}
+
 .result-content {
     background: rgba(0, 0, 0, 0.2);
     border-radius: 1rem;

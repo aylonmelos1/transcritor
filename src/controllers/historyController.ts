@@ -65,3 +65,32 @@ export const getTranscription = async (req: Request, res: Response): Promise<voi
         res.status(500).json({ error: 'Erro ao buscar transcrição.' });
     }
 }
+
+export const updateTranscription = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { id } = req.params;
+        const { title } = req.body;
+        const user = req.user;
+        const db = await getDb();
+
+        const transcription = await db.get('SELECT * FROM transcriptions WHERE id = ?', id);
+
+        if (!transcription) {
+            res.status(404).json({ error: 'Transcrição não encontrada.' });
+            return;
+        }
+
+        // RBAC: Verificar se pertence ao usuário (se não for MASTER/ADMIN)
+        if (user && user.role !== 'MASTER' && user.role !== 'ADMIN' && transcription.user_id !== user.id) {
+            res.status(403).json({ error: 'Acesso negado a esta transcrição.' });
+            return;
+        }
+
+        await db.run('UPDATE transcriptions SET title = ? WHERE id = ?', title, id);
+
+        res.json({ message: 'Título atualizado com sucesso.', title });
+    } catch (error) {
+        console.error("Erro ao atualizar transcrição:", error);
+        res.status(500).json({ error: 'Erro ao atualizar transcrição.' });
+    }
+}
