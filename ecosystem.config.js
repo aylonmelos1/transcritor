@@ -7,7 +7,7 @@ module.exports = {
         watch: false,
         env_production: {
             NODE_ENV: 'production',
-            DISABLE_AUTH: 'true'
+            DISABLE_AUTH: 'false'
         }
     }]
 };
