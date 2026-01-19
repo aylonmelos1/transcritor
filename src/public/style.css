@@ -28,6 +28,20 @@ body {
     overflow-x: hidden;
 }
 
+.logo-login {
+    width: 150px;
+    margin-bottom: 1rem;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.logo-sidebar {
+    width: 200px;
+    margin-bottom: 1rem;
+    margin-left: 0rem;
+    margin-right: 1rem;
+}
+
 /* Auth e Layout */
 .app-wrapper {
     display: flex;

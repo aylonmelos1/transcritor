@@ -1,0 +1,39 @@
+# Robots.txt - Site Privado
+# https://audio.abaincendio.com.br/
+
+# Bloquear todos os robôs
+User-agent: *
+Disallow: /
+
+# Bloquear especificamente crawlers de IA
+User-agent: GPTBot
+Disallow: /
+
+User-agent: ChatGPT-User
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /
+
+User-agent: Claude-Web
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /
+
+User-agent: Googlebot
+Disallow: /
+
+User-agent: Bingbot
+Disallow: /
+
+User-agent: FacebookExternalHit
+Disallow: /
+
+User-agent: Twitterbot
+Disallow: /
+
+# Sem sitemap - site privado
