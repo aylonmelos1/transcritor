@@ -263,6 +263,36 @@ body {
     color: #ef4444;
 }
 
+/* Input com Status */
+.input-with-status {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-with-status input {
+    flex: 1;
+    padding-right: 3rem;
+}
+
+.input-status {
+    position: absolute;
+    right: 1rem;
+    font-size: 1.1rem;
+}
+
+.input-status.available {
+    color: #4ade80;
+}
+
+.input-status.unavailable {
+    color: #ef4444;
+}
+
+.input-status.checking {
+    color: #fbbf24;
+}
+
 /* Sidebar Histórico */
 .sidebar {
     width: 280px;

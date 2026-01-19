@@ -20,6 +20,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const changePassBtn = document.getElementById('change-pass-btn');
     const passMsg = document.getElementById('pass-msg');
 
+    // Change Username
+    const currentUsernameInput = document.getElementById('current-username');
+    const newUsernameInput = document.getElementById('new-username');
+    const changeUsernameBtn = document.getElementById('change-username-btn');
+    const usernameStatus = document.getElementById('username-status');
+    const usernameMsg = document.getElementById('username-msg');
+    let usernameCheckTimeout = null;
+    let isUsernameAvailable = false;
+
     // Admin Create User
     const newUser = document.getElementById('new-user-name');
     const newPassUser = document.getElementById('new-user-pass');
@@ -215,10 +224,97 @@ document.addEventListener('DOMContentLoaded', () => {
         settingsModal.style.display = 'flex';
         passMsg.textContent = '';
         adminMsg.textContent = '';
+        usernameMsg.textContent = '';
+        newUsernameInput.value = '';
+        usernameStatus.textContent = '';
+        usernameStatus.className = 'input-status';
+        changeUsernameBtn.disabled = true;
+        isUsernameAvailable = false;
+
+        // Preencher username atual
+        const storedUsername = localStorage.getItem('username') || '';
+        currentUsernameInput.value = storedUsername;
     });
 
     closeSettings.addEventListener('click', () => {
         settingsModal.style.display = 'none';
+    });
+
+    // --- Verificação de Username em tempo real ---
+    newUsernameInput.addEventListener('input', () => {
+        const value = newUsernameInput.value.trim();
+
+        // Reset
+        usernameStatus.textContent = '';
+        usernameStatus.className = 'input-status';
+        changeUsernameBtn.disabled = true;
+        isUsernameAvailable = false;
+
+        if (value.length < 3) {
+            return;
+        }
+
+        // Debounce
+        clearTimeout(usernameCheckTimeout);
+        usernameStatus.textContent = '⏳';
+        usernameStatus.className = 'input-status checking';
+
+        usernameCheckTimeout = setTimeout(async () => {
+            try {
+                const response = await authFetch(`/api/check-username/${encodeURIComponent(value)}`);
+                const data = await response.json();
+
+                if (data.available) {
+                    usernameStatus.textContent = '✓';
+                    usernameStatus.className = 'input-status available';
+                    changeUsernameBtn.disabled = false;
+                    isUsernameAvailable = true;
+                } else {
+                    usernameStatus.textContent = '✗';
+                    usernameStatus.className = 'input-status unavailable';
+                    changeUsernameBtn.disabled = true;
+                    isUsernameAvailable = false;
+                }
+            } catch (e) {
+                usernameStatus.textContent = '?';
+                usernameStatus.className = 'input-status';
+            }
+        }, 400);
+    });
+
+    // --- Alterar Username ---
+    changeUsernameBtn.addEventListener('click', async () => {
+        if (!isUsernameAvailable) return;
+
+        usernameMsg.textContent = 'Processando...';
+        usernameMsg.className = 'settings-msg';
+        changeUsernameBtn.disabled = true;
+
+        try {
+            const response = await authFetch('/api/change-username', {
+                method: 'POST',
+                body: JSON.stringify({ newUsername: newUsernameInput.value.trim() }),
+                headers: { 'Content-Type': 'application/json' }
+            });
+            const data = await response.json();
+
+            if (response.ok) {
+                usernameMsg.className = 'settings-msg success';
+                usernameMsg.textContent = '✓ Username alterado! Faça login novamente.';
+                localStorage.setItem('username', data.username);
+                currentUsernameInput.value = data.username;
+                newUsernameInput.value = '';
+                usernameStatus.textContent = '';
+            } else {
+                usernameMsg.className = 'settings-msg error';
+                usernameMsg.textContent = data.error || 'Erro ao alterar.';
+                changeUsernameBtn.disabled = false;
+            }
+        } catch (e) {
+            usernameMsg.className = 'settings-msg error';
+            usernameMsg.textContent = 'Erro de rede.';
+            changeUsernameBtn.disabled = false;
+        }
     });
 
     changePassBtn.addEventListener('click', async () => {

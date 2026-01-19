@@ -45,10 +45,12 @@ router.get('/history/:id', getTranscription);
 router.patch('/history/:id', updateTranscription);
 
 // Gestão de Usuários
-import { changePassword, createUser } from '../controllers/authController';
+import { changePassword, createUser, checkUsername, changeUsername } from '../controllers/authController';
 import { authorizeRole } from '../middlewares/authMiddleware';
 
 router.post('/change-password', changePassword);
+router.post('/change-username', changeUsername);
+router.get('/check-username/:username', checkUsername);
 router.post('/users', authorizeRole(['ADMIN']), createUser);
 
 export default router;

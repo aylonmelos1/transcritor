@@ -4,11 +4,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transcritor de Áudio - IA</title>
+
+    <!-- SEO Básico -->
+    <title>Transcritor Studio | Transcrição de Áudio com IA - Aba Incêndio</title>
+    <meta name="description"
+        content="Transforme áudios de ligações em texto automaticamente com Inteligência Artificial. Transcrição precisa com timestamps, histórico e exportação para análise. Ideal para call centers e equipes comerciais.">
+    <meta name="keywords"
+        content="transcrição de áudio, transcritor IA, whisper, OpenAI, áudio para texto, call center, gravação de ligações, análise de chamadas, Aba Incêndio">
+    <meta name="author" content="Aba Incêndio">
+    <meta name="robots" content="index, follow">
+    <meta name="language" content="Portuguese">
+    <link rel="canonical" href="https://audio.abaincendio.com.br/">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://audio.abaincendio.com.br/">
+    <meta property="og:title" content="Transcritor Studio | Transcrição de Áudio com IA">
+    <meta property="og:description"
+        content="Transforme áudios de ligações em texto automaticamente com Inteligência Artificial. Transcrição precisa com timestamps e histórico completo.">
+    <meta property="og:image" content="https://audio.abaincendio.com.br/og-image.png">
+    <meta property="og:site_name" content="Transcritor Studio - Aba Incêndio">
+    <meta property="og:locale" content="pt_BR">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://audio.abaincendio.com.br/">
+    <meta name="twitter:title" content="Transcritor Studio | Transcrição de Áudio com IA">
+    <meta name="twitter:description"
+        content="Transforme áudios de ligações em texto automaticamente com Inteligência Artificial.">
+    <meta name="twitter:image" content="https://audio.abaincendio.com.br/og-image.png">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <meta name="theme-color" content="#0d0d12">
+
+    <!-- Preconnect -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+    <!-- Styles -->
     <link rel="stylesheet" href="style.css">
+
+    <!-- Schema.org Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Transcritor Studio",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Web Browser",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "BRL"
+        },
+        "description": "Ferramenta de transcrição de áudio usando Inteligência Artificial (OpenAI Whisper). Ideal para call centers e análise de ligações comerciais.",
+        "provider": {
+            "@type": "Organization",
+            "name": "Aba Incêndio",
+            "url": "https://abaincendio.com.br"
+        },
+        "featureList": [
+            "Transcrição automática com IA",
+            "Timestamps em cada segmento",
+            "Histórico de transcrições",
+            "Exportação em Markdown",
+            "Multi-usuários com controle de acesso"
+        ]
+    }
+    </script>
 </head>
 
 <body>
@@ -35,6 +104,29 @@
             </div>
 
             <div class="modal-body">
+                <!-- Seção Alterar Username -->
+                <div class="settings-card">
+                    <div class="settings-card-header">
+                        <span class="settings-icon">👤</span>
+                        <h3>Alterar Nome de Usuário</h3>
+                    </div>
+                    <div class="settings-card-body">
+                        <div class="input-row">
+                            <label for="current-username">Usuário Atual</label>
+                            <input type="text" id="current-username" disabled>
+                        </div>
+                        <div class="input-row">
+                            <label for="new-username">Novo Nome de Usuário</label>
+                            <div class="input-with-status">
+                                <input type="text" id="new-username" placeholder="Digite o novo username">
+                                <span id="username-status" class="input-status"></span>
+                            </div>
+                        </div>
+                        <button id="change-username-btn" class="settings-btn" disabled>Alterar Username</button>
+                        <p id="username-msg" class="settings-msg"></p>
+                    </div>
+                </div>
+
                 <!-- Seção Trocar Senha -->
                 <div class="settings-card">
                     <div class="settings-card-header">

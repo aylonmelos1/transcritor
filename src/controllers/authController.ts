@@ -95,3 +95,57 @@ export const createUser = async (req: Request, res: Response): Promise<void> => 
         res.status(500).json({ error: 'Erro interno.' });
     }
 };
+
+export const checkUsername = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const username = req.params.username as string;
+        const userId = req.user?.id;
+        const db = await getDb();
+
+        // Verifica se username já existe (exceto para o próprio usuário)
+        const existing = await db.get(
+            'SELECT id FROM users WHERE username = ? AND id != ?',
+            username.toLowerCase().trim(),
+            userId
+        );
+
+        res.json({ available: !existing });
+    } catch (error) {
+        console.error("Erro ao verificar username:", error);
+        res.status(500).json({ error: 'Erro interno.' });
+    }
+};
+
+export const changeUsername = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { newUsername } = req.body;
+        const userId = req.user?.id;
+        const db = await getDb();
+
+        if (!newUsername || newUsername.trim().length < 3) {
+            res.status(400).json({ error: 'Username deve ter pelo menos 3 caracteres.' });
+            return;
+        }
+
+        const normalized = newUsername.toLowerCase().trim();
+
+        // Verifica se já existe
+        const existing = await db.get(
+            'SELECT id FROM users WHERE username = ? AND id != ?',
+            normalized,
+            userId
+        );
+
+        if (existing) {
+            res.status(400).json({ error: 'Este nome de usuário já está em uso.' });
+            return;
+        }
+
+        await db.run('UPDATE users SET username = ? WHERE id = ?', normalized, userId);
+
+        res.json({ message: 'Nome de usuário alterado.', username: normalized });
+    } catch (error) {
+        console.error("Erro ao alterar username:", error);
+        res.status(500).json({ error: 'Erro interno.' });
+    }
+};
