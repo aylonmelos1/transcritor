@@ -12,10 +12,26 @@ const port = process.env.PORT || 3000;
 // Middlewares
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+
+// Arquivos estáticos - funciona em dev (src/) e prod (dist/)
+// Em produção, o app roda de ~/transcritor com dist/app.js
+// process.cwd() retorna o diretório de trabalho (onde o comando foi executado)
+const publicPath = path.join(process.cwd(), 'src', 'public');
+app.use(express.static(publicPath));
 
 // Rotas
 app.use('/api', apiRoutes);
+
+// Fallback para SPA (redireciona para index.html)
+// Express 5+ usa sintaxe diferente para wildcard
+app.use((req, res, next) => {
+    // Se não for uma rota de API e não for um arquivo existente, serve o index.html
+    if (!req.path.startsWith('/api')) {
+        res.sendFile(path.join(publicPath, 'index.html'));
+    } else {
+        next();
+    }
+});
 
 app.listen(port, () => {
     console.log(`Servidor rodando na porta ${port}`);
