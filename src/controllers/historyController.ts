@@ -49,7 +49,17 @@ export const getTranscription = async (req: Request, res: Response): Promise<voi
             return;
         }
 
-        res.json(transcription);
+        // Parse segments se existir
+        let segments = [];
+        if (transcription.segments) {
+            try {
+                segments = JSON.parse(transcription.segments);
+            } catch (e) {
+                segments = [];
+            }
+        }
+
+        res.json({ ...transcription, segments });
     } catch (error) {
         console.error("Erro ao buscar transcrição:", error);
         res.status(500).json({ error: 'Erro ao buscar transcrição.' });

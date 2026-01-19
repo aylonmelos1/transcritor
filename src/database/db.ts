@@ -71,6 +71,13 @@ export const initDb = async () => {
         // Ignora erro se coluna já existir
     }
 
+    // Migração: adicionar coluna segments
+    try {
+        await db.exec(`ALTER TABLE transcriptions ADD COLUMN segments TEXT`);
+    } catch (e) {
+        // Ignora erro se coluna já existir
+    }
+
     console.log('Banco de dados SQLite inicializado.');
     return db;
 };

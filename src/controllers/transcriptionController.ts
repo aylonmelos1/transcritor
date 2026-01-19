@@ -32,28 +32,32 @@ export const transcribeAudio = async (req: Request, res: Response): Promise<void
             const transcription = await openai.audio.transcriptions.create({
                 file: fs.createReadStream(filePath),
                 model: "whisper-1",
-                prompt: systemPrompt ? `${systemPrompt} ${prompt || ''}`.trim() : prompt
+                prompt: systemPrompt ? `${systemPrompt} ${prompt || ''}`.trim() : prompt,
+                response_format: "verbose_json",
+                timestamp_granularities: ["segment"]
             });
 
             // Limpeza do arquivo temporário
             deleteFile(filePath);
 
             const text = transcription.text;
+            const segments = (transcription as any).segments || [];
 
             // Salvar no Banco de Dados (SQLite)
             const db = await getDb();
             const userId = req.user?.id; // Obtido do middleware authenticateToken
 
             await db.run(
-                'INSERT INTO transcriptions (user_id, filename, title, text) VALUES (?, ?, ?, ?)',
+                'INSERT INTO transcriptions (user_id, filename, title, text, segments) VALUES (?, ?, ?, ?, ?)',
                 userId,
                 req.file.originalname,
                 title,
-                text
+                text,
+                JSON.stringify(segments)
             );
 
-            // Retorna o resultado + título confirmado
-            res.json({ text: transcription.text, title: title });
+            // Retorna o resultado + título + segmentos
+            res.json({ text, title, segments });
         } catch (openaiError: any) {
             console.error("Erro na OpenAI:", openaiError);
             if (fs.existsSync(filePath)) deleteFile(filePath);

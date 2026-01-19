@@ -35,16 +35,47 @@ document.addEventListener('DOMContentLoaded', () => {
     const promptInput = document.getElementById('prompt-input');
     const transcribeBtn = document.getElementById('transcribe-btn');
     const resultContainer = document.getElementById('result-container');
-    const transcriptionText = document.getElementById('transcription-text');
+    const segmentsContainer = document.getElementById('segments-container');
     const resultTitle = document.getElementById('result-title');
     const downloadBtn = document.getElementById('download-btn');
+    const copyJsonBtn = document.getElementById('copy-json-btn');
     const historyList = document.getElementById('history-list');
     const refreshHistoryBtn = document.getElementById('refresh-history');
 
     let selectedFile = null;
     let currentTranscriptionTitle = "";
+    let currentSegments = [];
     let authToken = localStorage.getItem('authToken');
     let userRole = localStorage.getItem('userRole');
+
+    // --- Helper: Formatar segundos para HH:MM:SS ---
+    function formatTime(seconds) {
+        const h = Math.floor(seconds / 3600);
+        const m = Math.floor((seconds % 3600) / 60);
+        const s = Math.floor(seconds % 60);
+        return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    }
+
+    // --- Renderizar Segmentos ---
+    function renderSegments(segments) {
+        currentSegments = segments || [];
+        segmentsContainer.innerHTML = '';
+
+        if (!segments || segments.length === 0) {
+            segmentsContainer.innerHTML = '<p style="padding:1rem; color: #666;">Nenhum segmento disponível.</p>';
+            return;
+        }
+
+        segments.forEach(seg => {
+            const div = document.createElement('div');
+            div.className = 'segment-item';
+            div.innerHTML = `
+                <span class="segment-time">${formatTime(seg.start)}</span>
+                <span class="segment-text">${seg.text}</span>
+            `;
+            segmentsContainer.appendChild(div);
+        });
+    }
 
     // --- Autenticação ---
     checkAuthStatus();
@@ -55,10 +86,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const config = await res.json();
 
             if (config.authDisabled) {
-                // Modo Público
-                authToken = 'guest-token'; // Token placeholder
+                authToken = 'guest-token';
                 localStorage.setItem('authDisabled', 'true');
-                showApp(true); // true indica modo público
+                showApp(true);
             } else {
                 localStorage.removeItem('authDisabled');
                 if (authToken) {
@@ -69,7 +99,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch (e) {
             console.error('Erro ao verificar config:', e);
-            // Fallback para login normal se falhar
             if (authToken) showApp(); else showLogin();
         }
     }
@@ -78,7 +107,6 @@ document.addEventListener('DOMContentLoaded', () => {
         loginOverlay.style.display = 'none';
         appWrapper.style.display = 'flex';
 
-        // Se for público, esconder botões de conta
         if (isPublic || localStorage.getItem('authDisabled') === 'true') {
             settingsBtn.style.display = 'none';
             logoutBtn.style.display = 'none';
@@ -86,7 +114,6 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             settingsBtn.style.display = 'block';
             logoutBtn.style.display = 'block';
-            // Mostrar seção admin se for admin
             if (userRole === 'ADMIN') {
                 adminSection.style.display = 'block';
             } else {
@@ -213,7 +240,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-
     // --- Helper Fetch Autenticado ---
     async function authFetch(url, options = {}) {
         if (!options.headers) options.headers = {};
@@ -222,17 +248,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const response = await fetch(url, options);
 
         if (response.status === 401 || response.status === 403) {
-            // Se falhar por auth ao tentar mudar senha, não deslogar imediatamente se for só senha errada
-            // Mas se for token invalido... o backend retorna 401/403.
-            // Para changePassword, 401 pode ser token ou senha antiga errada.
-            // Vamos checar o body se possivel, mas aqui simplificamos.
             const clone = response.clone();
             try {
                 const err = await clone.json();
-                if (err.error === 'Senha atual incorreta.') return response; // Deixa passar para o handler específico
+                if (err.error === 'Senha atual incorreta.') return response;
             } catch (e) { }
 
-            // Se for realmente token
             if (response.status === 403 || (response.status === 401 && url !== '/api/change-password')) {
                 logoutBtn.click();
                 throw new Error('Sessão expirada.');
@@ -278,20 +299,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const data = await response.json();
 
-            transcriptionText.textContent = data.text;
             resultTitle.textContent = data.title || data.filename;
             currentTranscriptionTitle = data.title || data.filename;
+            renderSegments(data.segments);
 
             resultContainer.classList.remove('hidden');
             resultContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
         } catch (error) {
-            // alert('Erro ao carregar transcrição.');
+            console.error("Erro ao carregar transcrição:", error);
         }
     }
 
     refreshHistoryBtn.addEventListener('click', loadHistory);
-
 
     // --- Upload e Transcrição ---
     dropZone.addEventListener('click', () => fileInput.click());
@@ -372,9 +392,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error(data.error || 'Erro na transcrição');
             }
 
-            transcriptionText.textContent = data.text;
             resultTitle.textContent = data.title;
             currentTranscriptionTitle = data.title;
+            renderSegments(data.segments);
 
             resultContainer.classList.remove('hidden');
             resultContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -389,13 +409,18 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- Download ---
+    // --- Download MD com Timestamps ---
     downloadBtn.addEventListener('click', () => {
-        const text = transcriptionText.textContent;
+        let mdContent = `# ${currentTranscriptionTitle}\n\n`;
+
+        currentSegments.forEach(seg => {
+            mdContent += `[${formatTime(seg.start)}] ${seg.text}\n\n`;
+        });
+
         const safeTitle = currentTranscriptionTitle.replace(/[^a-z0-9]/gi, '_').toLowerCase();
         const filename = `${safeTitle || 'transcricao'}.md`;
 
-        const blob = new Blob([text], { type: 'text/markdown' });
+        const blob = new Blob([mdContent], { type: 'text/markdown' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
 
@@ -406,5 +431,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
+    });
+
+    // --- Copiar JSON ---
+    copyJsonBtn.addEventListener('click', () => {
+        const json = JSON.stringify(currentSegments, null, 2);
+        navigator.clipboard.writeText(json).then(() => {
+            copyJsonBtn.textContent = 'Copiado!';
+            setTimeout(() => { copyJsonBtn.textContent = 'Copiar JSON'; }, 2000);
+        });
     });
 });

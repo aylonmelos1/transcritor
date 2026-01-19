@@ -420,6 +420,33 @@ main {
     line-height: 1.6;
 }
 
+/* Segments */
+.segment-item {
+    display: flex;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+    gap: 1rem;
+    align-items: flex-start;
+    transition: background 0.2s;
+}
+
+.segment-item:hover {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.segment-time {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    min-width: 70px;
+    font-family: monospace;
+}
+
+.segment-text {
+    flex: 1;
+    color: var(--text-color);
+    line-height: 1.5;
+}
+
 /* Loader */
 .loader {
     width: 20px;
